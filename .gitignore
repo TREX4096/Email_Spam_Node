@@ -1,0 +1,11 @@
+#Environment Variables
+.env
+
+#Public file
+public/
+
+#Node Modules
+node_modules/
+
+#Output
+dist/
