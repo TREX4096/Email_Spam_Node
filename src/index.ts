@@ -5,7 +5,7 @@ import xlsx from "xlsx-js-style";
 
 dotenv.config();
 
-var transporter = nodemailer.createTransport({
+const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
@@ -14,27 +14,27 @@ var transporter = nodemailer.createTransport({
 });
 
 // Read the image file
-var img = fs
-  .readFileSync("/home/trex4096/Desktop/WEb3/Projects/EmailSender/public/1.jpg")
-  .toString("base64");
+const img = fs.readFileSync("test.jpg").toString("base64");
+
+// Read the PDF file (ensure you provide the correct path)
+const pdf = fs.readFileSync("Brochure.pdf").toString("base64");
 
 // Function to read email addresses from Excel file
-function readEmailAddresses(filePath: any) {
+function readEmailAddresses(filePath: string) {
   const workbook = xlsx.readFile(filePath);
   const sheetName = workbook.SheetNames[0];
   const worksheet = workbook.Sheets[sheetName];
   const data = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
-  console.log(data);
   return { data, workbook, worksheet };
 }
 
 const blueStyle = {
   font: {
-    name: "Arial", // Font name
-    sz: 24, // Font size (in points)
-    color: { rgb: "FF0000" }, // Font color (Red)
-    bold: true, // Bold text
-    italic: true, // Italic text
+    name: "Arial",
+    sz: 24,
+    color: { rgb: "FF0000" },
+    bold: true,
+    italic: true,
   },
   fill: {
     fgColor: { rgb: "0000FF" },
@@ -52,89 +52,127 @@ function changeRowColor(worksheet: any, rowIndex: number) {
 }
 
 // Email addresses from Excel file
-const { data, workbook, worksheet } = readEmailAddresses(
-  "/home/trex4096/Desktop/WEb3/Projects/EmailSender/public/Sample.xlsx",
-);
+const { data, workbook, worksheet } = readEmailAddresses("Sample.xlsx");
 
 const emailAddresses: string[] = [];
 const userName: string[] = [];
-const company_Name: string[] = [];
-const company_Size: string[] = [];
-const length = data.length;
+const companyName: string[] = [];
+const companySize: string[] = [];
+const sector: string[] = [];
 
-for (let i = 1; i < length; i++) {
+for (let i = 1; i < data.length; i++) {
   //@ts-ignore
-  const email = data[i][1];
-  if (typeof email === "string") {
-    emailAddresses.push(email);
-  }
+  emailAddresses.push(data[i][1]);
   //@ts-ignore
-  const username = data[i][0];
-  if (typeof username === "string") {
-    userName.push(username);
-  }
-
+  userName.push(data[i][0]);
   //@ts-ignore
-  const company = data[i][2];
-  if (typeof company === "string") {
-    company_Name.push(company);
-  }
-
+  companyName.push(data[i][2]);
   //@ts-ignore
-  const size = data[i][3];
-  if (typeof size === "string") {
-    company_Size.push(size);
-  }
+  companySize.push(data[i][3]);
+  //@ts-ignore
+  sector.push(data[i][4]);
 }
 
 console.log(emailAddresses);
 console.log(userName);
-console.log(company_Name);
-console.log(company_Size);
-
-function scripts(user: string, type: string) {
-  if (type == "Big") {
+console.log(companyName);
+console.log(companySize);
+console.log(sector);
+// Function to generate email script
+function generateScript(user: string, size: string, sector: string): string {
+  if (size === "Big" && sector === "Web3") {
     return `Hey ${user},<br/><br/>
-    We know that your company has an esteemed reputation in the market. However, we understand that branding is a continuous process, and to stand out among other companies, you are always looking for unique ways to brand and provide a personalized experience to your target audience. We can help you achieve this.<br/><br/>
-    We are students of IIT Delhi and are excited to introduce you to the 49th edition of Rendezvous, Asia's most significant cultural festival, organized annually at IIT Delhi. Every year, Rendezvous draws over 160,000+ impressions from 1600+ institutions. In 4 days, we conducted 300+ events & pronates, which previously have witnessed 50+ artists like Sonu Nigam, Guru Randhawa, Salim Suleman and comedians such as Zakir Khan and Anubhav Bassi.<br/><br/>
-    We partner with companies like yours each year to help them connect with their target audience and create a personalized brand experience. Collaborations have been highly successful, with companies seeing significant engagement and brand recognition at our events.<br/><br/>
-    Here's how we helped companies like yours in the past:<br/>
-    • Engage a large audience over four days.<br/>
-    • Stage Time during the Events & premium artist Pronites.<br/>
-    • Customise brand experiences with Tailored Events & Dedicated Zones.<br/>
-    • Gorilla online & Offline Marketing strategy.<br/><br/>
-    I'm eager to hear your thoughts on this exciting opportunity. If you're interested in reaching potential customers in a unique and engaging way, I'd love to discuss this further with you over a call.<br/><br/>
-    Regards,<br/>
-    `;
+      We recognize your company's prestigious position in the Web3 sector. Branding is an ongoing process, and we can help you stand out by providing personalized experiences to your target audience.
+      <br/><br/>
+      I'm excited to introduce the 49th edition of Rendezvous, Asia’s largest cultural festival held annually at IIT Delhi. This festival attracts over 160,000+ impressions from 1600+ institutions. Over four days, we host 300+ events and pronites featuring artists like Sonu Nigam, Guru Randhawa, Salim Suleman, and comedians like Zakir Khan and Anubhav Bassi.
+      <br/><br/>
+      By collaborating with Rendezvous, you can access a vast audience and associate your brand with the prestige of IIT Delhi. Our past collaborators include 8fold AI, Binance, Logitech, and many more.
+      <br/><br/>
+      Here’s how we can help your company:
+      <ul>
+        <li>Engage a large audience over four days.</li>
+        <li>Stage time during events and premium artist pronites.</li>
+        <li>Customized brand experiences with tailored events and dedicated zones.</li>
+        <li>Online and offline promotion.</li>
+        <li>Hackathons, workshops, and speaker sessions.</li>
+        <li>Access to data on campus students and startups.</li>
+        <li>A pool of tech students for talent recruitment.</li>
+      </ul>
+      Let me know if you're interested. We can connect over a call to discuss more.
+      <br/><br/>
+      Best regards,<br>`;
+  } else if (size === "Big" && sector === "Bank") {
+    return `Hey ${user},<br/><br/>
+      We understand that your bank holds a significant position in the market. To maintain a competitive edge, innovative branding is crucial, and we can assist you in achieving this.
+      <br/><br/>
+      We're excited to introduce the 49th edition of Rendezvous, Asia’s largest cultural festival held annually at IIT Delhi. The festival consistently attracts over 160,000+ impressions from 1600+ institutions, featuring over 50 renowned artists and comedians.
+      <br/><br/>
+      By partnering with Rendezvous, you gain unparalleled access to a diverse audience and can enhance your brand's prestige. Our past collaborators include esteemed companies such as 8fold AI, Binance, Logitech, and many more.
+      <br/><br/>
+      Here are some partnership opportunities:
+      <ul>
+        <li>Title sponsorship for select events.</li>
+        <li>Access to valuable attendee data.</li>
+        <li>Promotion of student credit cards and education loans.</li>
+        <li>Dedicated stalls for direct interaction with attendees.</li>
+        <li>Promotion of UPI services among students.</li>
+        <li>Customized events and activities for launching new services.</li>
+      </ul>
+      We believe this partnership will offer your brand a unique opportunity to connect with a large and diverse audience. Please feel free to contact me to arrange a meeting.
+      <br/><br/>
+      Warm regards,<br>`;
+  } else if (size === "Small" && sector === "Web3") {
+    return `Hey ${user},<br/><br/>
+      I recently came across your company and was impressed by your excellent product/service. It has tremendous potential to reach peak popularity, especially among the youth demographic.
+      <br/><br/>
+      I'm excited to introduce the 49th edition of Rendezvous, Asia’s largest cultural festival held annually at IIT Delhi. This festival attracts over 160,000+ impressions from 1600+ institutions. Over four days, we host 300+ events and pronites featuring artists like Sonu Nigam, Guru Randhawa, Salim Suleman, and comedians like Zakir Khan and Anubhav Bassi.
+      <br/><br/>
+      By collaborating with Rendezvous, you can access a vast audience and associate your brand with the prestige of IIT Delhi. Our past collaborators include 8fold AI, Binance, Logitech, and many more.
+      <br/><br/>
+      Here’s how we can help your company:
+      <ul>
+        <li>Engage a large audience over four days.</li>
+        <li>Stage time during events and premium artist pronites.</li>
+        <li>Customized brand experiences with tailored events and dedicated zones.</li>
+        <li>Online and offline promotion.</li>
+        <li>Hackathons, workshops, and speaker sessions.</li>
+        <li>Access to data on campus students and startups.</li>
+        <li>A pool of tech students for talent recruitment.</li>
+      </ul>
+      Let me know if you're interested. We can connect over a call to discuss more.
+      <br/><br/>
+      Best regards,<br>`;
   } else {
     return `Hey ${user},<br/><br/>
-    I stumbled upon your company recently and was genuinely impressed with the offerings. There's significant untapped potential, especially in gaining popularity among younger audiences.<br/><br/>
-    I have an excellent way for you guys to push your company to reach and engage with its target audience. I'm excited to introduce you to the 49th edition of Rendezvous, Asia's most significant cultural festival, organized annually at IIT Delhi. Every year, Rendezvous draws over 160,000+ impressions from 1600+ institutions. In 4 days, we conducted 300+ events & pronate, which previously witnessed 50+ artists like Sonu Nigam, Guru Randhawa, Salim Suleman and comedians such as Zakir Khan and Anubhav Bassi.<br/><br/>
-    We partner with companies like yours each year to help them connect with their target audience and create a personalized brand experience. Our past collaborations have been highly successful, with companies seeing significant engagement and brand recognition at our events.<br/><br/>
-    Here's how we helped companies like yours in the past:<br/>
-    • Engage a large audience over four days.<br/>
-    • Stage Time during the Events & premium artist Pronites.<br/>
-    • Customise brand experiences with Tailored Events & Dedicated Zones.<br/>
-    • Online & Offline Promotion.<br/><br/>
-    I'm eager to hear your thoughts on this exciting opportunity. If you're interested in reaching potential customers in a unique and engaging way, I'd love to discuss this further with you over a call.<br/><br/>
-    Regards,<br/>
-    `;
+      We're excited to introduce the 49th edition of Rendezvous, Asia’s largest cultural festival held annually at IIT Delhi. This festival attracts over 160,000+ impressions from 1600+ institutions. Over four days, we host 300+ events and pronites featuring artists like Sonu Nigam, Guru Randhawa, Salim Suleman, and comedians like Zakir Khan and Anubhav Bassi.
+      <br/><br/>
+      By collaborating with Rendezvous, you can access a vast audience and associate your brand with the prestige of IIT Delhi. Our past collaborators include 8fold AI, Binance, Logitech, and many more.
+      <br/><br/>
+      Here’s how we can help your company:
+      <ul>
+        <li>Engage a large audience over four days.</li>
+        <li>Stage time during events and premium artist pronites.</li>
+        <li>Customized brand experiences with tailored events and dedicated zones.</li>
+        <li>Online and offline promotion.</li>
+        <li>Hackathons, workshops, and speaker sessions.</li>
+        <li>Access to data on campus students and startups.</li>
+        <li>A pool of tech students for talent recruitment.</li>
+      </ul>
+      Let me know if you're interested. We can connect over a call to discuss more.
+      <br/><br/>
+      Best regards,<br>`;
   }
 }
 
 const noOfRecipients = emailAddresses.length;
 
 for (let i = 0; i < noOfRecipients; i++) {
-  const mail_Script = scripts(userName[i], company_Size[i]);
+  const mailScript = generateScript(userName[i], companySize[i], sector[i]);
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: emailAddresses[i],
-    subject: `Association of ${company_Name[i]} x IIT Delhi`,
-    html:
-      mail_Script +
-      `
-      <img src="cid:unique@nodemailer.com" style="width: 20%; height: auto;"/>
-    `,
+    subject: `Association of ${companyName[i]} x IIT Delhi`,
+    html: `${mailScript}<img src="cid:unique@nodemailer.com" style="width: 20%; height: auto;"/>`,
     attachments: [
       {
         filename: "1.jpg",
@@ -142,22 +180,26 @@ for (let i = 0; i < noOfRecipients; i++) {
         encoding: "base64",
         cid: "unique@nodemailer.com",
       },
+      {
+        filename: "Brochure.pdf",
+        content: pdf,
+        encoding: "base64",
+      },
     ],
   };
 
-  transporter.sendMail(mailOptions, function (error, info) {
+  transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       console.log(`Error sending email to ${emailAddresses[i]}:`, error);
     } else {
       console.log(`Email sent to ${emailAddresses[i]}: ${info.response}`);
-      changeRowColor(worksheet, i + 2); // Change row color for the sent email (i + 2 because of the header)
+      changeRowColor(worksheet, i + 2);
     }
   });
 }
 
 // Save the modified workbook after sending all emails
-const outputFilePath =
-  "/home/trex4096/Desktop/WEb3/Projects/EmailSender/public/Sample.xlsx";
+const outputFilePath = "Sample.xlsx";
 
 setTimeout(() => {
   xlsx.writeFile(workbook, outputFilePath);
